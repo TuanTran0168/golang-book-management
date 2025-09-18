@@ -1,31 +1,35 @@
-book-management/
+```
+book-management-backend/
 ├── cmd/
-│   └── main.go
+│   └── main.go                 # Application entry point
 ├── config/
-│   └── config.go
+│   └── config.go               # Load configuration from file or environment
 ├── internal/
-│   ├── handlers/        # controller (HTTP layer)
+│   ├── handlers/               # HTTP controllers
 │   │   ├── book_handler.go
 │   │   └── author_handler.go
-│   ├── middlewares/     # auth, logging, recover
+│   ├── middlewares/            # Middleware (auth, logging, recover)
 │   │   └── auth.go
-│   ├── models/          # GORM models
+│   ├── models/                 # GORM models
 │   │   ├── book.go
 │   │   └── author.go
-│   ├── router/          # route definitions
+│   ├── router/                 # HTTP route definitions
 │   │   └── router.go
-│   ├── services/        # business logic
+│   ├── services/               # Business logic
 │   │   ├── book_service.go
 │   │   └── author_service.go
-│   ├── storages/        # database layer (repository)
-│   │   ├── book_repo.go
-│   │   └── author_repo.go
-│   └── wire/            # dependency injection (wire or manual)
+│   ├── repositories/           # Repository / database layer
+│   │   ├── book_repository.go
+│   │   └── author_repository.go
+│   └── wire/                   # Dependency injection (wire or manual)
 │       └── wire.go
 ├── pkg/
-│   └── database/
-│       └── postgres.go
-├── .env
+│   └── databases/
+│       └── postgresql.go         # Database connection
+├── .air.toml                   # Air configuration (hot reload)
+├── .env.local                  # Environment configuration for development (DB, port)
 ├── go.mod
 ├── go.sum
-└── docker-compose.yml
+├── Dockerfile.local            # Dockerfile for development
+└── docker-compose-local.yaml   # Docker Compose for development
+```
