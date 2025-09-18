@@ -1,0 +1,6 @@
+go get github.com/gin-gonic/gin
+go get gorm.io/gorm
+go get gorm.io/driver/postgres
+go get github.com/joho/godotenv
+go get github.com/google/wire
+go install github.com/air-verse/air@latest

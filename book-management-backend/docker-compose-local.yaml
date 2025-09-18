@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  postgres_db:
+    image: postgres:17
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: tuantran
+      POSTGRES_PASSWORD: Admin@123
+      POSTGRES_DB: book_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - book_network
+
+  app:
+    build:
+      context: .
+      dockerfile: DockerFile.local
+    image: book_app:dev
+    container_name: book_app
+    command: air -c .air.toml
+    volumes:
+      - .:/app                       # mount code
+      - go_mod_cache:/go/pkg/mod      # cache Go modules
+      - go_build_cache:/root/.cache/go-build
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    # env_file:
+    #   - .env.local
+    depends_on:
+      - postgres_db
+    networks:
+      - book_network
+
+volumes:
+  db_data:
+  go_mod_cache:
+  go_build_cache:
+
+networks:
+  book_network:
+    driver: bridge

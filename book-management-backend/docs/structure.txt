@@ -1,0 +1,31 @@
+book-management/
+├── cmd/
+│   └── main.go
+├── config/
+│   └── config.go
+├── internal/
+│   ├── handlers/        # controller (HTTP layer)
+│   │   ├── book_handler.go
+│   │   └── author_handler.go
+│   ├── middlewares/     # auth, logging, recover
+│   │   └── auth.go
+│   ├── models/          # GORM models
+│   │   ├── book.go
+│   │   └── author.go
+│   ├── router/          # route definitions
+│   │   └── router.go
+│   ├── services/        # business logic
+│   │   ├── book_service.go
+│   │   └── author_service.go
+│   ├── storages/        # database layer (repository)
+│   │   ├── book_repo.go
+│   │   └── author_repo.go
+│   └── wire/            # dependency injection (wire or manual)
+│       └── wire.go
+├── pkg/
+│   └── database/
+│       └── postgres.go
+├── .env
+├── go.mod
+├── go.sum
+└── docker-compose.yml
