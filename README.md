@@ -7,7 +7,7 @@ A simple **Book Management** application built with **Golang**, using **GORM** a
 ## Project Structure
 
 ```
-book-management/
+book-management-backend/
 ├── cmd/
 │   └── main.go                 # Application entry point
 ├── config/
@@ -26,14 +26,14 @@ book-management/
 │   ├── services/               # Business logic
 │   │   ├── book_service.go
 │   │   └── author_service.go
-│   ├── storages/               # Repository / database layer
-│   │   ├── book_storage.go
-│   │   └── author_storage.go
+│   ├── repositories/           # Repository / database layer
+│   │   ├── book_repository.go
+│   │   └── author_repository.go
 │   └── wire/                   # Dependency injection (wire or manual)
 │       └── wire.go
 ├── pkg/
 │   └── databases/
-│       └── postgres.go         # Database connection
+│       └── postgresql.go         # Database connection
 ├── .air.toml                   # Air configuration (hot reload)
 ├── .env.local                  # Environment configuration for development (DB, port)
 ├── go.mod
