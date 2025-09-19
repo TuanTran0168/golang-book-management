@@ -17,7 +17,7 @@ import (
 
 // @title Book Management API
 // @version 1.0
-// @description This is a simple Book Management API built with Golang and Gin
+// @description A simple RESTful Book Management API built with Golang
 // @host
 // @BasePath /api
 func main() {
@@ -35,8 +35,12 @@ func main() {
 	authorService := services.NewAuthorService(authorRepo, db)
 	authorHandler := handlers.NewAuthorHandler(authorService)
 
+	bookRepo := repositories.NewBookRepository()
+	bookService := services.NewBookService(bookRepo, authorRepo, db)
+	bookHandler := handlers.NewBookHandler(bookService)
+
 	// 4. Setup Gin router
-	server := router.NewRouter(authorHandler)
+	server := router.NewRouter(authorHandler, bookHandler)
 
 	// 5. Swagger route
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
