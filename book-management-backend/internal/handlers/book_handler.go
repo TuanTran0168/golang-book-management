@@ -21,9 +21,11 @@ type AuthorResponseForBook struct {
 }
 
 type BookResponse struct {
-	ID     uint                  `json:"id"`
-	Title  string                `json:"title"`
-	Author AuthorResponseForBook `json:"author"`
+	ID        uint                  `json:"id"`
+	Title     string                `json:"title"`
+	Author    AuthorResponseForBook `json:"author"`
+	CreatedAt string                `json:"created_at"`
+	UpdatedAt string                `json:"updated_at"`
 }
 
 func mapBookResponse(book *models.Book) BookResponse {
@@ -34,9 +36,11 @@ func mapBookResponse(book *models.Book) BookResponse {
 	}
 
 	return BookResponse{
-		ID:     book.ID,
-		Title:  book.Title,
-		Author: AuthorResponseForBook,
+		ID:        book.ID,
+		Title:     book.Title,
+		Author:    AuthorResponseForBook,
+		CreatedAt: book.CreatedAt.Format("02-01-2006 15:04:05"),
+		UpdatedAt: book.UpdatedAt.Format("02-01-2006 15:04:05"),
 	}
 }
 
@@ -57,7 +61,43 @@ func (h *BookHandler) GetBookByID(c *gin.Context) {
 	book, httpStatus, err := h.service.GetBookByID(idStr)
 	if err != nil {
 		c.JSON(httpStatus, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(httpStatus, mapBookResponse(book))
+}
+
+// GET /books?limit=10&offset=0
+// GetAllBooks godoc
+// @Summary      Get all books with pagination
+// @Description  Retrieve a paginated list of books, each including its author
+// @Tags         books
+// @Produce      json
+// @Param        limit   query     string  false  "Limit number of books per page"  default(10)
+// @Param        offset  query     string  false  "Number of books to skip"         default(0)
+// @Success      200     {object}  map[string]interface{}
+// @Failure      400     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /books [get]
+func (h *BookHandler) GetAllBooks(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "10")
+	offsetStr := c.DefaultQuery("offset", "0")
+
+	books, httpStatus, err := h.service.GetAllBooks(limitStr, offsetStr)
+
+	if err != nil {
+		c.JSON(httpStatus, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp := make([]BookResponse, len(*books))
+	for i := range *books {
+		resp[i] = mapBookResponse(&(*books)[i])
+	}
+
+	c.JSON(httpStatus, gin.H{
+		"limit":  limitStr,
+		"offset": offsetStr,
+		"data":   resp,
+	})
 }

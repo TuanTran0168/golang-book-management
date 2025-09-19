@@ -28,9 +28,13 @@ definitions:
     properties:
       author:
         $ref: '#/definitions/handlers.AuthorResponseForBook'
+      created_at:
+        type: string
       id:
         type: integer
       title:
+        type: string
+      updated_at:
         type: string
     type: object
   handlers.BookSimple:
@@ -235,6 +239,43 @@ paths:
       summary: Update an author
       tags:
       - authors
+  /books:
+    get:
+      description: Retrieve a paginated list of books, each including its author
+      parameters:
+      - default: "10"
+        description: Limit number of books per page
+        in: query
+        name: limit
+        type: string
+      - default: "0"
+        description: Number of books to skip
+        in: query
+        name: offset
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all books with pagination
+      tags:
+      - books
   /books/{id}:
     get:
       description: Get a single book along with its author by book ID

@@ -29,6 +29,7 @@ func (b *bookRepository) GetAllBooks(db *gorm.DB, limit, offset uint) (*[]models
 
 	result := db.Limit(int(limit)).
 		Offset(int(offset)).
+		Preload("Author").
 		Find(&books)
 
 	if result.Error != nil {

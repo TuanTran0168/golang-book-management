@@ -11,7 +11,7 @@ import (
 
 type IBookService interface {
 	GetBookByID(bookIdStr string) (*models.Book, int, error)
-	// GetAllBooks(limit, offset uint) (*[]models.Book, int, error)
+	GetAllBooks(limitStr, offsetStr string) (*[]models.Book, int, error)
 }
 
 type BookService struct {
@@ -33,6 +33,24 @@ func (s *BookService) GetBookByID(bookIdStr string) (*models.Book, int, error) {
 	}
 
 	return book, http.StatusOK, nil
+}
+func (s *BookService) GetAllBooks(limitStr, offsetStr string) (*[]models.Book, int, error) {
+	limit, _ := strconv.Atoi(limitStr)
+	offset, _ := strconv.Atoi(offsetStr)
+
+	if limit < 1 {
+		limit = 10
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	books, err := s.repo.GetAllBooks(s.db, uint(limit), uint(offset))
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	return books, http.StatusOK, nil
 }
 
 func NewBookService(repo repositories.IBookRepository, db *gorm.DB) IBookService {
