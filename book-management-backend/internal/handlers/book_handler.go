@@ -129,3 +129,35 @@ func (h *BookHandler) CreateBook(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, mapBookResponse(createdBook))
 }
+
+// PATCH /books/:id
+// UpdateBook godoc
+// @Summary      Update a book partially
+// @Description  Update book fields partially by ID (PATCH)
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        id    path      string                  true  "Book ID"
+// @Param        book  body      services.BookUpdateRequest  true  "Book fields to update"
+// @Success      200   {object}  handlers.BookResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Router       /books/{id} [patch]
+func (h *BookHandler) UpdateBook(c *gin.Context) {
+	var bookUpdateRequest services.BookUpdateRequest
+	idStr := c.Param("id")
+
+	if err := c.ShouldBindJSON(&bookUpdateRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	updatedBook, httpStatus, err := h.service.UpdateBook(idStr, bookUpdateRequest)
+
+	if err != nil {
+		c.JSON(httpStatus, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(httpStatus, mapBookResponse(updatedBook))
+}

@@ -15,6 +15,12 @@ type BookCreateRequest struct {
 	AuthorId uint   `json:"authorId" binding:"required"`
 }
 
+// Use pointer to check nil or empty for PATCH update api
+type BookUpdateRequest struct {
+	Title    *string `json:"title"`
+	AuthorId *uint   `json:"authorId"`
+}
+
 func mapBook(bookCreateRequest BookCreateRequest) *models.Book {
 	return &models.Book{
 		Title:    bookCreateRequest.Title,
@@ -26,6 +32,7 @@ type IBookService interface {
 	GetBookByID(bookIdStr string) (*models.Book, int, error)
 	GetAllBooks(limitStr, offsetStr string) (*[]models.Book, int, error)
 	CreateBook(book BookCreateRequest) (*models.Book, error)
+	UpdateBook(bookIdStr string, book BookUpdateRequest) (*models.Book, int, error)
 }
 
 type BookService struct {
@@ -85,6 +92,46 @@ func (s *BookService) CreateBook(book BookCreateRequest) (*models.Book, error) {
 	s.db.Preload("Author").First(createdBook, createdBook.ID)
 
 	return createdBook, nil
+}
+
+func (s *BookService) UpdateBook(bookIdStr string, book BookUpdateRequest) (*models.Book, int, error) {
+	bookId, err := strconv.Atoi(bookIdStr)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	bookObj, err := s.repo.GetBookById(s.db, uint(bookId))
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, http.StatusNotFound, fmt.Errorf("book with ID [%d] does not exist", bookId)
+		}
+		return nil, http.StatusInternalServerError, err
+	}
+
+	if book.Title != nil {
+		bookObj.Title = *book.Title
+	}
+
+	if book.AuthorId != nil {
+		author, err := s.authorRepo.GetAuthorByID(s.db, *book.AuthorId)
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return nil, http.StatusNotFound, fmt.Errorf("author with ID [%d] does not exist", *book.AuthorId)
+			}
+			return nil, http.StatusInternalServerError, err
+		}
+		bookObj.AuthorID = author.ID
+		bookObj.Author = *author
+	}
+
+	savedBook, err := s.repo.UpdateBook(s.db, bookObj)
+
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	return savedBook, http.StatusOK, nil
 }
 
 func NewBookService(repo repositories.IBookRepository, authorRepo repositories.IAuthorRepository, db *gorm.DB) IBookService {
