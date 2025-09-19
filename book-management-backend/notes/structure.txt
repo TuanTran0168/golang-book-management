@@ -1,10 +1,3 @@
-# Book Management Project
-
-A simple **Book Management** application built with **Golang**, using **GORM** and **PostgreSQL**.
-
----
-
-## Project Structure
 ```
 ├── 📁 .git/ 🚫 (auto-hidden)          # Git metadata, do not touch
 ├── 📁 book-management-backend/        # Main project source
@@ -51,38 +44,3 @@ A simple **Book Management** application built with **Golang**, using **GORM** a
 ├── 🚫 .gitignore                      # Files ignored by Git
 └── 📖 README.md                       # Main documentation (project overview)
 ```
-
----
-
-## Running the Project with Docker
-
-1. Build and start containers:
-
-```bash
-docker compose -f docker-compose-local.yaml up -d --build
-```
-
-* Builds the `book_app:dev` image and starts the app + PostgreSQL containers.
-
-2. Subsequent runs:
-
-```bash
-docker compose -f docker-compose-local.yaml up -d
-```
-
-* Starts containers without rebuilding.
-
-3. Stop containers:
-
-```bash
-docker compose -f docker-compose-local.yaml down
-```
-
-* Stops and removes containers.
-
----
-
-## Notes
-
-* Database connection and migrations are handled automatically via GORM.
-* App runs on port `8080` inside Docker, accessible at `http://localhost:8080/`.

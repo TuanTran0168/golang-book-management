@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -64,8 +63,18 @@ func mapAuthorResponse(author *models.Author) AuthorResponse {
 }
 
 // GET /authors?limit=10&offset=0
+// GetAuthors godoc
+// @Summary      Get list of authors
+// @Description  Retrieve authors with pagination
+// @Tags         authors
+// @Accept       json
+// @Produce      json
+// @Param        limit   query     int  false  "Number of authors per page" default(10)
+// @Param        offset  query     int  false  "Starting offset" default(0)
+// @Success      200     {object}  map[string]interface{}
+// @Failure      500     {object}  map[string]string
+// @Router       /authors [get]
 func (h *AuthorHandler) GetAuthors(c *gin.Context) {
-	log.Println("GetAuthors AAAAAAAAA")
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
 	if limit < 1 {
@@ -94,6 +103,15 @@ func (h *AuthorHandler) GetAuthors(c *gin.Context) {
 }
 
 // GET /authors/:id
+// GetAuthorByID godoc
+// @Summary      Get author details by ID
+// @Tags         authors
+// @Produce      json
+// @Param        id   path      int  true  "Author ID"
+// @Success      200  {object}  AuthorResponse
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Router       /authors/{id} [get]
 func (h *AuthorHandler) GetAuthorByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -112,6 +130,16 @@ func (h *AuthorHandler) GetAuthorByID(c *gin.Context) {
 }
 
 // POST /authors
+// CreateAuthor godoc
+// @Summary      Create a new author
+// @Tags         authors
+// @Accept       json
+// @Produce      json
+// @Param        author  body      CreateAuthorRequest  true  "Author data"
+// @Success      201     {object}  AuthorResponse
+// @Failure      400     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /authors [post]
 func (h *AuthorHandler) CreateAuthor(c *gin.Context) {
 	var req CreateAuthorRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -133,6 +161,18 @@ func (h *AuthorHandler) CreateAuthor(c *gin.Context) {
 }
 
 // PUT /authors/:id
+// UpdateAuthor godoc
+// @Summary      Update an author
+// @Tags         authors
+// @Accept       json
+// @Produce      json
+// @Param        id      path      int                 true  "Author ID"
+// @Param        author  body      UpdateAuthorRequest true  "Updated author data"
+// @Success      200     {object}  AuthorResponse
+// @Failure      400     {object}  map[string]string
+// @Failure      404     {object}  map[string]string
+// @Failure      500     {object}  map[string]string
+// @Router       /authors/{id} [put]
 func (h *AuthorHandler) UpdateAuthor(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -165,6 +205,15 @@ func (h *AuthorHandler) UpdateAuthor(c *gin.Context) {
 }
 
 // DELETE /authors/:id
+// DeleteAuthor godoc
+// @Summary      Delete an author
+// @Tags         authors
+// @Param        id   path  int  true  "Author ID"
+// @Success      204  "No Content"
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /authors/{id} [delete]
 func (h *AuthorHandler) DeleteAuthor(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)

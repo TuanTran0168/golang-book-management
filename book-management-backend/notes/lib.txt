@@ -5,3 +5,6 @@ go get github.com/joho/godotenv
 go get github.com/google/wire
 go install github.com/air-verse/air@latest
 go install github.com/google/wire/cmd/wire@latest
+go get -u github.com/swaggo/swag/cmd/swag@latest
+go get -u github.com/swaggo/gin-swagger
+go get -u github.com/swaggo/files
