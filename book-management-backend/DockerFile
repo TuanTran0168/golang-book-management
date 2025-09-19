@@ -1,0 +1,41 @@
+# ---------- Build Stage ----------
+# Use a lightweight Golang image for building the binary
+FROM golang:1.25-alpine3.22 AS builder
+
+WORKDIR /app
+
+# Install required build tools
+RUN apk add --no-cache git
+
+# Copy go.mod and go.sum first to leverage Docker cache
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the entire source code
+COPY . .
+
+# Build the Go application binary
+# Output binary name: book-app
+RUN go build -o book-app ./cmd/main.go
+
+
+# ---------- Run Stage ----------
+# Use a minimal Alpine image for running the built binary
+FROM alpine:3.22
+
+WORKDIR /app
+
+# Copy only the compiled binary from the builder stage
+COPY --from=builder /app/book-app .
+
+# Copy production environment configuration file
+COPY .env.prod .env.prod
+
+# Set default environment variable
+ENV ENV=prod
+
+# Expose application port
+EXPOSE 8080
+
+# Run the binary
+CMD ["./book-app"]
