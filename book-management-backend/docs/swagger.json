@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "This is a simple Book Management API built with Golang and Gin",
+        "description": "A simple RESTful Book Management API built with Golang",
         "title": "Book Management API",
         "contact": {},
         "version": "1.0"
@@ -263,6 +263,53 @@
                     }
                 }
             }
+        },
+        "/books/{id}": {
+            "get": {
+                "description": "Get a single book along with its author by book ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book details by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -288,6 +335,31 @@
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AuthorResponseForBook": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.BookResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/handlers.AuthorResponseForBook"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
                     "type": "string"
                 }
             }

@@ -270,6 +270,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/books/{id}": {
+            "get": {
+                "description": "Get a single book along with its author by book ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "books"
+                ],
+                "summary": "Get book details by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Book ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.BookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -295,6 +342,31 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AuthorResponseForBook": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.BookResponse": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "$ref": "#/definitions/handlers.AuthorResponseForBook"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -350,7 +422,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Book Management API",
-	Description:      "This is a simple Book Management API built with Golang and Gin",
+	Description:      "A simple RESTful Book Management API built with Golang",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

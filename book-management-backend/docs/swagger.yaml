@@ -17,6 +17,22 @@ definitions:
       updated_at:
         type: string
     type: object
+  handlers.AuthorResponseForBook:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  handlers.BookResponse:
+    properties:
+      author:
+        $ref: '#/definitions/handlers.AuthorResponseForBook'
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
   handlers.BookSimple:
     properties:
       id:
@@ -46,7 +62,7 @@ definitions:
     type: object
 info:
   contact: {}
-  description: This is a simple Book Management API built with Golang and Gin
+  description: A simple RESTful Book Management API built with Golang
   title: Book Management API
   version: "1.0"
 paths:
@@ -219,4 +235,35 @@ paths:
       summary: Update an author
       tags:
       - authors
+  /books/{id}:
+    get:
+      description: Get a single book along with its author by book ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BookResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get book details by ID
+      tags:
+      - books
 swagger: "2.0"
