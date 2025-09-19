@@ -44,7 +44,6 @@ definitions:
     - email
     - name
     type: object
-host: localhost:8080
 info:
   contact: {}
   description: This is a simple Book Management API built with Golang and Gin
