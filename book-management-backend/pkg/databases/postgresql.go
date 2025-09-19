@@ -11,22 +11,43 @@ import (
 	"gorm.io/gorm"
 )
 
-var DB *gorm.DB
+// var DB *gorm.DB
 
-func ConnectPostgres(cfg *config.Config) {
+// func ConnectPostgres(cfg *config.Config) {
+// 	dsn := fmt.Sprintf(
+// 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+// 		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort, cfg.DBSSLMode,
+// 	)
+
+// 	var err error
+// 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+// 	if err != nil {
+// 		log.Fatal("❌ Failed to connect database: ", err)
+// 	}
+
+// 	log.Println("✅ Database connected")
+
+// 	// Auto migrate models
+// 	DB.AutoMigrate(&models.Author{}, &models.Book{})
+// }
+
+func ConnectPostgres(cfg *config.Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 		cfg.DBHost, cfg.DBUser, cfg.DBPassword, cfg.DBName, cfg.DBPort, cfg.DBSSLMode,
 	)
 
-	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("❌ Failed to connect database: ", err)
+		return nil, err
 	}
 
-	log.Println("✅ Database connected")
+	log.Println("✅ Database connected and migrated successfully")
 
 	// Auto migrate models
-	DB.AutoMigrate(&models.Author{}, &models.Book{})
+	if err := db.AutoMigrate(&models.Author{}, &models.Book{}); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
