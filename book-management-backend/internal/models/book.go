@@ -6,4 +6,5 @@ type Book struct {
 	gorm.Model
 	Title    string `json:"title"`
 	AuthorID uint   `json:"author_id"`
+	Author   Author `gorm:"foreignKey:AuthorID" json:"author"`
 }

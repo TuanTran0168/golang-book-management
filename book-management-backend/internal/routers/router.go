@@ -7,7 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(authorHandler *handlers.AuthorHandler) *gin.Engine {
+func NewRouter(
+	authorHandler *handlers.AuthorHandler,
+	bookHandler *handlers.BookHandler) *gin.Engine {
 	r := gin.Default()
 	r.Use(middlewares.CORSMiddleware())
 	r.Use(middlewares.IPCheckMiddleware())
@@ -21,6 +23,7 @@ func NewRouter(authorHandler *handlers.AuthorHandler) *gin.Engine {
 	api := r.Group("/api")
 
 	RegisterAuthorRoutes(api, authorHandler)
+	RegisterBookRoutes(api, bookHandler)
 
 	return r
 }

@@ -17,6 +17,26 @@ definitions:
       updated_at:
         type: string
     type: object
+  handlers.AuthorResponseForBook:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  handlers.BookResponse:
+    properties:
+      author:
+        $ref: '#/definitions/handlers.AuthorResponseForBook'
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   handlers.BookSimple:
     properties:
       id:
@@ -44,9 +64,26 @@ definitions:
     - email
     - name
     type: object
+  services.BookCreateRequest:
+    properties:
+      authorId:
+        type: integer
+      title:
+        type: string
+    required:
+    - authorId
+    - title
+    type: object
+  services.BookUpdateRequest:
+    properties:
+      authorId:
+        type: integer
+      title:
+        type: string
+    type: object
 info:
   contact: {}
-  description: This is a simple Book Management API built with Golang and Gin
+  description: A simple RESTful Book Management API built with Golang
   title: Book Management API
   version: "1.0"
 paths:
@@ -219,4 +256,143 @@ paths:
       summary: Update an author
       tags:
       - authors
+  /books:
+    get:
+      description: Retrieve a paginated list of books, each including its author
+      parameters:
+      - default: "10"
+        description: Limit number of books per page
+        in: query
+        name: limit
+        type: string
+      - default: "0"
+        description: Number of books to skip
+        in: query
+        name: offset
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all books with pagination
+      tags:
+      - books
+    post:
+      consumes:
+      - application/json
+      description: Create a new book with a title and an existing author
+      parameters:
+      - description: Book Create Request
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/services.BookCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.BookResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new book
+      tags:
+      - books
+  /books/{id}:
+    get:
+      description: Get a single book along with its author by book ID
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BookResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get book details by ID
+      tags:
+      - books
+    patch:
+      consumes:
+      - application/json
+      description: Update book fields partially by ID (PATCH)
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Book fields to update
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/services.BookUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.BookResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a book partially
+      tags:
+      - books
 swagger: "2.0"
