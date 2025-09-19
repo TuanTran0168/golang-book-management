@@ -5,3 +5,5 @@ docker compose -f 'book-management-backend\docker-compose-local.yaml' up -d
 docker exec -it book_app bash
 
 go run cmd/main.go
+
+ENV=prod go run cmd/main.go
