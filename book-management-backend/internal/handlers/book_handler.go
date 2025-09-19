@@ -3,6 +3,7 @@ package handlers
 import (
 	"book-management/internal/models"
 	"book-management/internal/services"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -100,4 +101,31 @@ func (h *BookHandler) GetAllBooks(c *gin.Context) {
 		"offset": offsetStr,
 		"data":   resp,
 	})
+}
+
+// POST /books
+// CreateBook godoc
+// @Summary      Create a new book
+// @Description  Create a new book with a title and an existing author
+// @Tags         books
+// @Accept       json
+// @Produce      json
+// @Param        book  body      services.BookCreateRequest  true  "Book Create Request"
+// @Success      201   {object}  handlers.BookResponse
+// @Failure      400   {object}  map[string]string
+// @Failure      500   {object}  map[string]string
+// @Router       /books [post]
+func (h *BookHandler) CreateBook(c *gin.Context) {
+	var bookCreateRequest services.BookCreateRequest
+	if err := c.ShouldBindJSON(&bookCreateRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	createdBook, err := h.service.CreateBook(bookCreateRequest)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, mapBookResponse(createdBook))
 }

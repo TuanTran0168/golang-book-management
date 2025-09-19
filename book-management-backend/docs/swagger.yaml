@@ -64,6 +64,16 @@ definitions:
     - email
     - name
     type: object
+  services.BookCreateRequest:
+    properties:
+      authorId:
+        type: integer
+      title:
+        type: string
+    required:
+    - authorId
+    - title
+    type: object
 info:
   contact: {}
   description: A simple RESTful Book Management API built with Golang
@@ -274,6 +284,39 @@ paths:
               type: string
             type: object
       summary: Get all books with pagination
+      tags:
+      - books
+    post:
+      consumes:
+      - application/json
+      description: Create a new book with a title and an existing author
+      parameters:
+      - description: Book Create Request
+        in: body
+        name: book
+        required: true
+        schema:
+          $ref: '#/definitions/services.BookCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handlers.BookResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new book
       tags:
       - books
   /books/{id}:

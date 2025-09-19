@@ -9,6 +9,7 @@ import (
 type IBookRepository interface {
 	GetBookById(db *gorm.DB, bookId uint) (*models.Book, error)
 	GetAllBooks(db *gorm.DB, limit, offset uint) (*[]models.Book, error)
+	CreateBook(db *gorm.DB, book *models.Book) (*models.Book, error)
 }
 
 type bookRepository struct{}
@@ -37,6 +38,14 @@ func (b *bookRepository) GetAllBooks(db *gorm.DB, limit, offset uint) (*[]models
 	}
 
 	return &books, nil
+}
+
+func (b *bookRepository) CreateBook(db *gorm.DB, book *models.Book) (*models.Book, error) {
+	result := db.Create(book)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return book, nil
 }
 
 func NewBookRepository() IBookRepository {

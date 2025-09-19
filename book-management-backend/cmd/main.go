@@ -36,7 +36,7 @@ func main() {
 	authorHandler := handlers.NewAuthorHandler(authorService)
 
 	bookRepo := repositories.NewBookRepository()
-	bookService := services.NewBookService(bookRepo, db)
+	bookService := services.NewBookService(bookRepo, authorRepo, db)
 	bookHandler := handlers.NewBookHandler(bookService)
 
 	// 4. Setup Gin router
