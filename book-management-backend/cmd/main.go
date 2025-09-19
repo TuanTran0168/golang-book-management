@@ -18,7 +18,7 @@ import (
 // @title Book Management API
 // @version 1.0
 // @description This is a simple Book Management API built with Golang and Gin
-// @host localhost:8080
+// @host
 // @BasePath /api
 func main() {
 	// 1. Load config
