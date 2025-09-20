@@ -33,6 +33,7 @@ type IBookService interface {
 	GetAllBooks(limitStr, offsetStr string) (*[]models.Book, int, error)
 	CreateBook(book BookCreateRequest) (*models.Book, error)
 	UpdateBook(bookIdStr string, book BookUpdateRequest) (*models.Book, int, error)
+	DeleteBook(bookIdStr string) (int, error)
 }
 
 type BookService struct {
@@ -132,6 +133,27 @@ func (s *BookService) UpdateBook(bookIdStr string, book BookUpdateRequest) (*mod
 	}
 
 	return savedBook, http.StatusOK, nil
+}
+
+func (s *BookService) DeleteBook(bookIdStr string) (int, error) {
+	bookId, err := strconv.Atoi(bookIdStr)
+	if err != nil {
+		return http.StatusBadRequest, err
+	}
+
+	bookObj, err := s.repo.GetBookById(s.db, uint(bookId))
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return http.StatusNotFound, fmt.Errorf("book with ID [%d] does not exist", bookId)
+		}
+		return http.StatusInternalServerError, err
+	}
+	deleteErr := s.repo.DeleteBook(s.db, bookObj)
+	if deleteErr != nil {
+		return http.StatusInternalServerError, deleteErr
+	}
+
+	return http.StatusNoContent, nil
 }
 
 func NewBookService(repo repositories.IBookRepository, authorRepo repositories.IAuthorRepository, db *gorm.DB) IBookService {
