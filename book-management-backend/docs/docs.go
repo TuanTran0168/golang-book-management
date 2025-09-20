@@ -15,8 +15,181 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Login user",
+                "parameters": [
+                    {
+                        "description": "Login data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Refresh access token",
+                "parameters": [
+                    {
+                        "description": "Refresh token",
+                        "name": "refresh_token",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "User registration data",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_handlers.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/book-management_internal_models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/authors": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve authors with pagination",
                 "consumes": [
                     "application/json"
@@ -64,6 +237,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -81,7 +259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.CreateAuthorRequest"
+                            "$ref": "#/definitions/internal_handlers.CreateAuthorRequest"
                         }
                     }
                 ],
@@ -89,7 +267,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AuthorResponse"
+                            "$ref": "#/definitions/internal_handlers.AuthorResponse"
                         }
                     },
                     "400": {
@@ -115,6 +293,11 @@ const docTemplate = `{
         },
         "/authors/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -135,7 +318,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AuthorResponse"
+                            "$ref": "#/definitions/internal_handlers.AuthorResponse"
                         }
                     },
                     "400": {
@@ -159,6 +342,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -183,7 +371,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UpdateAuthorRequest"
+                            "$ref": "#/definitions/internal_handlers.UpdateAuthorRequest"
                         }
                     }
                 ],
@@ -191,7 +379,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.AuthorResponse"
+                            "$ref": "#/definitions/internal_handlers.AuthorResponse"
                         }
                     },
                     "400": {
@@ -224,6 +412,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "tags": [
                     "authors"
                 ],
@@ -273,6 +466,11 @@ const docTemplate = `{
         },
         "/books": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a paginated list of books, each including its author",
                 "produces": [
                     "application/json"
@@ -326,6 +524,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Create a new book with a title and an existing author",
                 "consumes": [
                     "application/json"
@@ -344,7 +547,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.BookCreateRequest"
+                            "$ref": "#/definitions/book-management_internal_services.BookCreateRequest"
                         }
                     }
                 ],
@@ -352,7 +555,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BookResponse"
+                            "$ref": "#/definitions/internal_handlers.BookResponse"
                         }
                     },
                     "400": {
@@ -378,6 +581,11 @@ const docTemplate = `{
         },
         "/books/{id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Get a single book along with its author by book ID",
                 "produces": [
                     "application/json"
@@ -399,7 +607,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BookResponse"
+                            "$ref": "#/definitions/internal_handlers.BookResponse"
                         }
                     },
                     "400": {
@@ -423,6 +631,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Delete a book by its ID (soft delete if GORM is configured with gorm.Model)",
                 "produces": [
                     "application/json"
@@ -474,6 +687,11 @@ const docTemplate = `{
                 }
             },
             "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update book fields partially by ID (PATCH)",
                 "consumes": [
                     "application/json"
@@ -499,7 +717,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.BookUpdateRequest"
+                            "$ref": "#/definitions/book-management_internal_services.BookUpdateRequest"
                         }
                     }
                 ],
@@ -507,7 +725,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.BookResponse"
+                            "$ref": "#/definitions/internal_handlers.BookResponse"
                         }
                     },
                     "400": {
@@ -533,13 +751,85 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "handlers.AuthorResponse": {
+        "book-management_internal_models.Role": {
+            "type": "string",
+            "enum": [
+                "admin",
+                "user"
+            ],
+            "x-enum-varnames": [
+                "RoleAdmin",
+                "RoleUser"
+            ]
+        },
+        "book-management_internal_models.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "role": {
+                    "$ref": "#/definitions/book-management_internal_models.Role"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "book-management_internal_services.BookCreateRequest": {
+            "type": "object",
+            "required": [
+                "authorId",
+                "title"
+            ],
+            "properties": {
+                "authorId": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "book-management_internal_services.BookUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "authorId": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "internal_handlers.AuthorResponse": {
             "type": "object",
             "properties": {
                 "books": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/handlers.BookSimple"
+                        "$ref": "#/definitions/internal_handlers.BookSimple"
                     }
                 },
                 "created_at": {
@@ -559,7 +849,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.AuthorResponseForBook": {
+        "internal_handlers.AuthorResponseForBook": {
             "type": "object",
             "properties": {
                 "id": {
@@ -570,11 +860,11 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.BookResponse": {
+        "internal_handlers.BookResponse": {
             "type": "object",
             "properties": {
                 "author": {
-                    "$ref": "#/definitions/handlers.AuthorResponseForBook"
+                    "$ref": "#/definitions/internal_handlers.AuthorResponseForBook"
                 },
                 "created_at": {
                     "type": "string"
@@ -590,7 +880,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.BookSimple": {
+        "internal_handlers.BookSimple": {
             "type": "object",
             "properties": {
                 "id": {
@@ -601,7 +891,7 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.CreateAuthorRequest": {
+        "internal_handlers.CreateAuthorRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -616,7 +906,64 @@ const docTemplate = `{
                 }
             }
         },
-        "handlers.UpdateAuthorRequest": {
+        "internal_handlers.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "password",
+                "role",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "enum": [
+                        "admin",
+                        "user"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/book-management_internal_models.Role"
+                        }
+                    ]
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_at": {
+                    "description": "unix timestamp",
+                    "type": "integer"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_handlers.UpdateAuthorRequest": {
             "type": "object",
             "required": [
                 "email",
@@ -630,32 +977,14 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
-        },
-        "services.BookCreateRequest": {
-            "type": "object",
-            "required": [
-                "authorId",
-                "title"
-            ],
-            "properties": {
-                "authorId": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "services.BookUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "authorId": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer {your token}\" to authenticate.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`
