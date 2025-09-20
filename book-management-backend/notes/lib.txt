@@ -10,3 +10,4 @@ go get -u github.com/swaggo/gin-swagger
 go get -u github.com/swaggo/files
 go get -u github.com/gin-contrib/cors
 go get github.com/golang-jwt/jwt/v5
+go get github.com/cloudinary/cloudinary-go/v2/api/uploader

@@ -3,7 +3,9 @@ package services
 import (
 	"book-management/internal/models"
 	"book-management/internal/repositories"
+	"book-management/pkg/utils"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"strconv"
 
@@ -11,8 +13,9 @@ import (
 )
 
 type BookCreateRequest struct {
-	Title    string `json:"title" binding:"required"`
-	AuthorId uint   `json:"authorId" binding:"required"`
+	Title    string                `form:"title" binding:"required"`
+	AuthorId uint                  `form:"authorId" binding:"required"`
+	Image    *multipart.FileHeader `form:"image"` // optional
 }
 
 // Use pointer to check nil or empty for PATCH update api
@@ -21,10 +24,11 @@ type BookUpdateRequest struct {
 	AuthorId *uint   `json:"authorId"`
 }
 
-func mapBook(bookCreateRequest BookCreateRequest) *models.Book {
+func mapBook(bookCreateRequest BookCreateRequest, imageURL string) *models.Book {
 	return &models.Book{
 		Title:    bookCreateRequest.Title,
 		AuthorID: bookCreateRequest.AuthorId,
+		Image:    imageURL,
 	}
 }
 
@@ -37,9 +41,10 @@ type IBookService interface {
 }
 
 type BookService struct {
-	repo       repositories.IBookRepository
-	authorRepo repositories.IAuthorRepository
-	db         *gorm.DB
+	repo           repositories.IBookRepository
+	authorRepo     repositories.IAuthorRepository
+	CloudinaryUtil *utils.CloudinaryUtil
+	db             *gorm.DB
 }
 
 func (s *BookService) GetBookByID(bookIdStr string) (*models.Book, int, error) {
@@ -76,22 +81,34 @@ func (s *BookService) GetAllBooks(limitStr, offsetStr string) (*[]models.Book, i
 	return books, http.StatusOK, nil
 }
 
-func (s *BookService) CreateBook(book BookCreateRequest) (*models.Book, error) {
-	_, err := s.authorRepo.GetAuthorByID(s.db, book.AuthorId)
+func (s *BookService) CreateBook(bookCreateRequest BookCreateRequest) (*models.Book, error) {
+	_, err := s.authorRepo.GetAuthorByID(s.db, bookCreateRequest.AuthorId)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return nil, fmt.Errorf("author with ID [%d] does not exist", book.AuthorId)
+			return nil, fmt.Errorf("author with ID [%d] does not exist", bookCreateRequest.AuthorId)
 		}
 		return nil, err
 	}
 
-	bookModel := mapBook(book)
+	var imageURL string
+	if bookCreateRequest.Image != nil {
+		file, _ := bookCreateRequest.Image.Open()
+		defer file.Close()
+
+		url, err := s.CloudinaryUtil.UploadImage(file, bookCreateRequest.Image, "books")
+		if err != nil {
+			return nil, fmt.Errorf("upload image failed: %w", err)
+		}
+		imageURL = url
+	}
+
+	bookModel := mapBook(bookCreateRequest, imageURL)
+
 	createdBook, err := s.repo.CreateBook(s.db, bookModel)
 	if err != nil {
 		return nil, err
 	}
 	s.db.Preload("Author").First(createdBook, createdBook.ID)
-
 	return createdBook, nil
 }
 
@@ -156,10 +173,16 @@ func (s *BookService) DeleteBook(bookIdStr string) (int, error) {
 	return http.StatusNoContent, nil
 }
 
-func NewBookService(repo repositories.IBookRepository, authorRepo repositories.IAuthorRepository, db *gorm.DB) IBookService {
+func NewBookService(
+	repo repositories.IBookRepository,
+	authorRepo repositories.IAuthorRepository,
+	db *gorm.DB,
+	cloudUtil *utils.CloudinaryUtil,
+) IBookService {
 	return &BookService{
-		repo:       repo,
-		authorRepo: authorRepo,
-		db:         db,
+		repo:           repo,
+		authorRepo:     authorRepo,
+		CloudinaryUtil: cloudUtil,
+		db:             db,
 	}
 }

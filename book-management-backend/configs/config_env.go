@@ -22,6 +22,11 @@ type Config struct {
 	// JWT TTL
 	AccessTokenTTLMinutes int
 	RefreshTokenTTLHours  int
+
+	// Cloudinary
+	CloudName string
+	APIKey    string
+	APISecret string
 }
 
 func LoadConfig() *Config {
@@ -40,13 +45,13 @@ func LoadConfig() *Config {
 	// Convert TTL
 	accessTTL, _ := strconv.Atoi(getEnv("ACCESS_TOKEN_TTL_MIN", "15"))
 	refreshTTL, _ := strconv.Atoi(getEnv("REFRESH_TOKEN_TTL_HOUR", "168"))
-
 	// Check ENVIRONMENT
 	log.Println("========================== ENVIRONMENT ==========================")
 	log.Printf("🚀 Running with environment: %s", envFile)
 	log.Printf("🚀 Running with DB_NAME: %s", os.Getenv("DB_NAME"))
 	log.Printf("🚀 Running with DB_HOST: %s", os.Getenv("DB_HOST"))
 	log.Printf("🔑 JWT_SECRET loaded: %v", os.Getenv("JWT_SECRET") != "")
+	log.Printf("☁️ Cloudinary loaded: %v", os.Getenv("CLOUDINARY_CLOUD_NAME") != "")
 	log.Println("=================================================================")
 
 	return &Config{
@@ -61,6 +66,9 @@ func LoadConfig() *Config {
 		Env:                   env,
 		AccessTokenTTLMinutes: accessTTL,
 		RefreshTokenTTLHours:  refreshTTL,
+		CloudName:             os.Getenv("CLOUDINARY_CLOUD_NAME"),
+		APIKey:                os.Getenv("CLOUDINARY_API_KEY"),
+		APISecret:             os.Getenv("CLOUDINARY_API_SECRET"),
 	}
 }
 

@@ -10,6 +10,7 @@ import (
 	router "book-management/internal/routers"
 	"book-management/internal/services"
 	database "book-management/pkg/databases"
+	"book-management/pkg/utils"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger" // swagger middleware
@@ -34,13 +35,19 @@ func main() {
 		log.Fatal("❌ Failed to connect to database: ", err)
 	}
 
+	// 2.1 Init Cloudinary
+	cloudUtil, err := utils.NewCloudinaryUtil(cfg)
+	if err != nil {
+		log.Fatal("❌ Failed to init Cloudinary: ", err)
+	}
+
 	// 3. Init repository, service, handler
 	authorRepo := repositories.NewAuthorRepository()
 	authorService := services.NewAuthorService(authorRepo, db)
 	authorHandler := handlers.NewAuthorHandler(authorService)
 
 	bookRepo := repositories.NewBookRepository()
-	bookService := services.NewBookService(bookRepo, authorRepo, db)
+	bookService := services.NewBookService(bookRepo, authorRepo, db, cloudUtil)
 	bookHandler := handlers.NewBookHandler(bookService)
 
 	userRepo := repositories.NewUserRepository()
