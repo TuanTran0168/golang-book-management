@@ -161,3 +161,26 @@ func (h *BookHandler) UpdateBook(c *gin.Context) {
 
 	c.JSON(httpStatus, mapBookResponse(updatedBook))
 }
+
+// DELETE /books/:id
+// DeleteBook godoc
+// @Summary      Delete a book
+// @Description  Delete a book by its ID (soft delete if GORM is configured with gorm.Model)
+// @Tags         books
+// @Produce      json
+// @Param        id   path      string  true  "Book ID"
+// @Success      204  "No Content"
+// @Failure      400  {object}  map[string]string
+// @Failure      404  {object}  map[string]string
+// @Failure      500  {object}  map[string]string
+// @Router       /books/{id} [delete]
+func (h *BookHandler) DeleteBook(c *gin.Context) {
+	idStr := c.Param("id")
+	httpStatus, err := h.service.DeleteBook(idStr)
+
+	if err != nil {
+		c.JSON(httpStatus, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(httpStatus, nil)
+}
