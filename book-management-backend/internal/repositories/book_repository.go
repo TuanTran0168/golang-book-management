@@ -11,6 +11,7 @@ type IBookRepository interface {
 	GetAllBooks(db *gorm.DB, limit, offset uint) (*[]models.Book, error)
 	CreateBook(db *gorm.DB, book *models.Book) (*models.Book, error)
 	UpdateBook(db *gorm.DB, book *models.Book) (*models.Book, error)
+	DeleteBook(db *gorm.DB, book *models.Book) error
 }
 
 type bookRepository struct{}
@@ -50,12 +51,16 @@ func (b *bookRepository) CreateBook(db *gorm.DB, book *models.Book) (*models.Boo
 }
 
 func (b *bookRepository) UpdateBook(db *gorm.DB, book *models.Book) (*models.Book, error) {
-	result := db.Debug().Save(book)
+	result := db.Save(book)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
 	return book, nil
+}
+
+func (b *bookRepository) DeleteBook(db *gorm.DB, book *models.Book) error {
+	return db.Delete(book).Error
 }
 
 func NewBookRepository() IBookRepository {

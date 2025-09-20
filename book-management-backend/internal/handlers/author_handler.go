@@ -74,6 +74,7 @@ func mapAuthorResponse(author *models.Author) AuthorResponse {
 // @Success      200     {object}  map[string]interface{}
 // @Failure      500     {object}  map[string]string
 // @Router       /authors [get]
+// @Security BearerAuth
 func (h *AuthorHandler) GetAuthors(c *gin.Context) {
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
@@ -112,6 +113,7 @@ func (h *AuthorHandler) GetAuthors(c *gin.Context) {
 // @Failure      400  {object}  map[string]string
 // @Failure      404  {object}  map[string]string
 // @Router       /authors/{id} [get]
+// @Security BearerAuth
 func (h *AuthorHandler) GetAuthorByID(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -140,6 +142,7 @@ func (h *AuthorHandler) GetAuthorByID(c *gin.Context) {
 // @Failure      400     {object}  map[string]string
 // @Failure      500     {object}  map[string]string
 // @Router       /authors [post]
+// @Security BearerAuth
 func (h *AuthorHandler) CreateAuthor(c *gin.Context) {
 	var req CreateAuthorRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -173,6 +176,7 @@ func (h *AuthorHandler) CreateAuthor(c *gin.Context) {
 // @Failure      404     {object}  map[string]string
 // @Failure      500     {object}  map[string]string
 // @Router       /authors/{id} [put]
+// @Security BearerAuth
 func (h *AuthorHandler) UpdateAuthor(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
@@ -214,6 +218,7 @@ func (h *AuthorHandler) UpdateAuthor(c *gin.Context) {
 // @Failure      404  {object}  map[string]string
 // @Failure      500  {object}  map[string]string
 // @Router       /authors/{id} [delete]
+// @Security BearerAuth
 func (h *AuthorHandler) DeleteAuthor(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)

@@ -40,7 +40,7 @@ func ConnectPostgres(cfg *config.Config) (*gorm.DB, error) {
 	log.Println("✅ Database connected")
 
 	// Auto migrate models
-	if err := db.AutoMigrate(&models.Author{}, &models.Book{}); err != nil {
+	if err := db.AutoMigrate(&models.Author{}, &models.Book{}, &models.User{}); err != nil {
 		return nil, err
 	}
 

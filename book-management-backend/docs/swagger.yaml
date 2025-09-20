@@ -1,10 +1,58 @@
 basePath: /api
 definitions:
-  handlers.AuthorResponse:
+  book-management_internal_models.Role:
+    enum:
+    - admin
+    - user
+    type: string
+    x-enum-varnames:
+    - RoleAdmin
+    - RoleUser
+  book-management_internal_models.User:
+    properties:
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      id:
+        type: integer
+      role:
+        $ref: '#/definitions/book-management_internal_models.Role'
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  book-management_internal_services.BookCreateRequest:
+    properties:
+      authorId:
+        type: integer
+      title:
+        type: string
+    required:
+    - authorId
+    - title
+    type: object
+  book-management_internal_services.BookUpdateRequest:
+    properties:
+      authorId:
+        type: integer
+      title:
+        type: string
+    type: object
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  internal_handlers.AuthorResponse:
     properties:
       books:
         items:
-          $ref: '#/definitions/handlers.BookSimple'
+          $ref: '#/definitions/internal_handlers.BookSimple'
         type: array
       created_at:
         type: string
@@ -17,17 +65,17 @@ definitions:
       updated_at:
         type: string
     type: object
-  handlers.AuthorResponseForBook:
+  internal_handlers.AuthorResponseForBook:
     properties:
       id:
         type: integer
       name:
         type: string
     type: object
-  handlers.BookResponse:
+  internal_handlers.BookResponse:
     properties:
       author:
-        $ref: '#/definitions/handlers.AuthorResponseForBook'
+        $ref: '#/definitions/internal_handlers.AuthorResponseForBook'
       created_at:
         type: string
       id:
@@ -37,14 +85,14 @@ definitions:
       updated_at:
         type: string
     type: object
-  handlers.BookSimple:
+  internal_handlers.BookSimple:
     properties:
       id:
         type: integer
       title:
         type: string
     type: object
-  handlers.CreateAuthorRequest:
+  internal_handlers.CreateAuthorRequest:
     properties:
       email:
         type: string
@@ -54,7 +102,44 @@ definitions:
     - email
     - name
     type: object
-  handlers.UpdateAuthorRequest:
+  internal_handlers.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_handlers.RegisterRequest:
+    properties:
+      password:
+        type: string
+      role:
+        allOf:
+        - $ref: '#/definitions/book-management_internal_models.Role'
+        enum:
+        - admin
+        - user
+      username:
+        type: string
+    required:
+    - password
+    - role
+    - username
+    type: object
+  internal_handlers.TokenResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        description: unix timestamp
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  internal_handlers.UpdateAuthorRequest:
     properties:
       email:
         type: string
@@ -63,23 +148,6 @@ definitions:
     required:
     - email
     - name
-    type: object
-  services.BookCreateRequest:
-    properties:
-      authorId:
-        type: integer
-      title:
-        type: string
-    required:
-    - authorId
-    - title
-    type: object
-  services.BookUpdateRequest:
-    properties:
-      authorId:
-        type: integer
-      title:
-        type: string
     type: object
 info:
   contact: {}
@@ -87,6 +155,115 @@ info:
   title: Book Management API
   version: "1.0"
 paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Login data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handlers.TokenResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh token
+        in: body
+        name: refresh_token
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: User registration data
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/internal_handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/book-management_internal_models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - auth
   /authors:
     get:
       consumes:
@@ -117,6 +294,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get list of authors
       tags:
       - authors
@@ -129,14 +308,14 @@ paths:
         name: author
         required: true
         schema:
-          $ref: '#/definitions/handlers.CreateAuthorRequest'
+          $ref: '#/definitions/internal_handlers.CreateAuthorRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.AuthorResponse'
+            $ref: '#/definitions/internal_handlers.AuthorResponse'
         "400":
           description: Bad Request
           schema:
@@ -149,6 +328,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create a new author
       tags:
       - authors
@@ -181,6 +362,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Delete an author
       tags:
       - authors
@@ -197,7 +380,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AuthorResponse'
+            $ref: '#/definitions/internal_handlers.AuthorResponse'
         "400":
           description: Bad Request
           schema:
@@ -210,6 +393,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get author details by ID
       tags:
       - authors
@@ -227,14 +412,14 @@ paths:
         name: author
         required: true
         schema:
-          $ref: '#/definitions/handlers.UpdateAuthorRequest'
+          $ref: '#/definitions/internal_handlers.UpdateAuthorRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.AuthorResponse'
+            $ref: '#/definitions/internal_handlers.AuthorResponse'
         "400":
           description: Bad Request
           schema:
@@ -253,6 +438,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update an author
       tags:
       - authors
@@ -290,6 +477,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get all books with pagination
       tags:
       - books
@@ -303,14 +492,14 @@ paths:
         name: book
         required: true
         schema:
-          $ref: '#/definitions/services.BookCreateRequest'
+          $ref: '#/definitions/book-management_internal_services.BookCreateRequest'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/handlers.BookResponse'
+            $ref: '#/definitions/internal_handlers.BookResponse'
         "400":
           description: Bad Request
           schema:
@@ -323,10 +512,49 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Create a new book
       tags:
       - books
   /books/{id}:
+    delete:
+      description: Delete a book by its ID (soft delete if GORM is configured with
+        gorm.Model)
+      parameters:
+      - description: Book ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a book
+      tags:
+      - books
     get:
       description: Get a single book along with its author by book ID
       parameters:
@@ -341,7 +569,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.BookResponse'
+            $ref: '#/definitions/internal_handlers.BookResponse'
         "400":
           description: Bad Request
           schema:
@@ -354,6 +582,8 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Get book details by ID
       tags:
       - books
@@ -372,14 +602,14 @@ paths:
         name: book
         required: true
         schema:
-          $ref: '#/definitions/services.BookUpdateRequest'
+          $ref: '#/definitions/book-management_internal_services.BookUpdateRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handlers.BookResponse'
+            $ref: '#/definitions/internal_handlers.BookResponse'
         "400":
           description: Bad Request
           schema:
@@ -392,7 +622,15 @@ paths:
             additionalProperties:
               type: string
             type: object
+      security:
+      - BearerAuth: []
       summary: Update a book partially
       tags:
       - books
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer {your token}" to authenticate.
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -20,6 +20,10 @@ import (
 // @description A simple RESTful Book Management API built with Golang
 // @host
 // @BasePath /api
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer {your token}" to authenticate.
 func main() {
 	// 1. Load config
 	cfg := configs.LoadConfig()
@@ -39,8 +43,12 @@ func main() {
 	bookService := services.NewBookService(bookRepo, authorRepo, db)
 	bookHandler := handlers.NewBookHandler(bookService)
 
+	userRepo := repositories.NewUserRepository()
+	authService := services.NewAuthService(userRepo, cfg, db)
+	authHandler := handlers.NewAuthHandler(authService)
+
 	// 4. Setup Gin router
-	server := router.NewRouter(authorHandler, bookHandler)
+	server := router.NewRouter(authorHandler, bookHandler, authHandler, cfg)
 
 	// 5. Swagger route
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
