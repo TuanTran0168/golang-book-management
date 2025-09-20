@@ -25,6 +25,7 @@ type BookResponse struct {
 	ID        uint                  `json:"id"`
 	Title     string                `json:"title"`
 	Author    AuthorResponseForBook `json:"author"`
+	Image     string                `json:"image"`
 	CreatedAt string                `json:"created_at"`
 	UpdatedAt string                `json:"updated_at"`
 }
@@ -40,6 +41,7 @@ func mapBookResponse(book *models.Book) BookResponse {
 		ID:        book.ID,
 		Title:     book.Title,
 		Author:    AuthorResponseForBook,
+		Image:     book.Image,
 		CreatedAt: book.CreatedAt.Format("02-01-2006 15:04:05"),
 		UpdatedAt: book.UpdatedAt.Format("02-01-2006 15:04:05"),
 	}
@@ -108,22 +110,27 @@ func (h *BookHandler) GetAllBooks(c *gin.Context) {
 // POST /books
 // CreateBook godoc
 // @Summary      Create a new book
-// @Description  Create a new book with a title and an existing author
+// @Description  Create a new book with a title, author, and optional image
 // @Tags         books
-// @Accept       json
+// @Accept       multipart/form-data
 // @Produce      json
-// @Param        book  body      services.BookCreateRequest  true  "Book Create Request"
-// @Success      201   {object}  handlers.BookResponse
-// @Failure      400   {object}  map[string]string
-// @Failure      500   {object}  map[string]string
+// @Param        title    formData  string true "Book Title"
+// @Param        authorId formData  int    true "Author ID"
+// @Param        image    formData  file   false "Book Image"
+// @Success      201 {object} handlers.BookResponse
+// @Failure      400 {object} map[string]string
+// @Failure      500 {object} map[string]string
 // @Router       /books [post]
 // @Security BearerAuth
 func (h *BookHandler) CreateBook(c *gin.Context) {
 	var bookCreateRequest services.BookCreateRequest
-	if err := c.ShouldBindJSON(&bookCreateRequest); err != nil {
+
+	// Bind multipart/form-data
+	if err := c.ShouldBind(&bookCreateRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	createdBook, err := h.service.CreateBook(bookCreateRequest)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

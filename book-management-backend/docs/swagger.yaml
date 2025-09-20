@@ -23,16 +23,6 @@ definitions:
       username:
         type: string
     type: object
-  book-management_internal_services.BookCreateRequest:
-    properties:
-      authorId:
-        type: integer
-      title:
-        type: string
-    required:
-    - authorId
-    - title
-    type: object
   book-management_internal_services.BookUpdateRequest:
     properties:
       authorId:
@@ -80,6 +70,8 @@ definitions:
         type: string
       id:
         type: integer
+      image:
+        type: string
       title:
         type: string
       updated_at:
@@ -484,15 +476,23 @@ paths:
       - books
     post:
       consumes:
-      - application/json
-      description: Create a new book with a title and an existing author
+      - multipart/form-data
+      description: Create a new book with a title, author, and optional image
       parameters:
-      - description: Book Create Request
-        in: body
-        name: book
+      - description: Book Title
+        in: formData
+        name: title
         required: true
-        schema:
-          $ref: '#/definitions/book-management_internal_services.BookCreateRequest'
+        type: string
+      - description: Author ID
+        in: formData
+        name: authorId
+        required: true
+        type: integer
+      - description: Book Image
+        in: formData
+        name: image
+        type: file
       produces:
       - application/json
       responses:
