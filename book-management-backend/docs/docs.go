@@ -529,9 +529,9 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new book with a title and an existing author",
+                "description": "Create a new book with a title, author, and optional image",
                 "consumes": [
-                    "application/json"
+                    "multipart/form-data"
                 ],
                 "produces": [
                     "application/json"
@@ -542,13 +542,24 @@ const docTemplate = `{
                 "summary": "Create a new book",
                 "parameters": [
                     {
-                        "description": "Book Create Request",
-                        "name": "book",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/book-management_internal_services.BookCreateRequest"
-                        }
+                        "type": "string",
+                        "description": "Book Title",
+                        "name": "title",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Author ID",
+                        "name": "authorId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Book Image",
+                        "name": "image",
+                        "in": "formData"
                     }
                 ],
                 "responses": {
@@ -785,21 +796,6 @@ const docTemplate = `{
                 }
             }
         },
-        "book-management_internal_services.BookCreateRequest": {
-            "type": "object",
-            "required": [
-                "authorId",
-                "title"
-            ],
-            "properties": {
-                "authorId": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
         "book-management_internal_services.BookUpdateRequest": {
             "type": "object",
             "properties": {
@@ -871,6 +867,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "image": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
