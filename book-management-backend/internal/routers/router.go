@@ -12,6 +12,7 @@ func NewRouter(
 	authorHandler *handlers.AuthorHandler,
 	bookHandler *handlers.BookHandler,
 	authHandler *handlers.AuthHandler,
+	genreHanlder *handlers.GenreHandler,
 	cfg *config.Config,
 ) *gin.Engine {
 	r := gin.Default()
@@ -27,6 +28,7 @@ func NewRouter(
 	RegisterAuthRoutes(api, authHandler)
 	RegisterAuthorRoutes(api, authorHandler, cfg)
 	RegisterBookRoutes(api, bookHandler, cfg)
+	RegisterGenreRoutes(api, genreHanlder, cfg)
 
 	return r
 }
