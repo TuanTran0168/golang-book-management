@@ -54,8 +54,18 @@ func main() {
 	authService := services.NewAuthService(userRepo, cfg, db)
 	authHandler := handlers.NewAuthHandler(authService)
 
+	genreRepo := repositories.NewGenreRepository()
+	genreService := services.NewGenreService(genreRepo, db)
+	genreHandler := handlers.NewGenreHandler(genreService)
+
 	// 4. Setup Gin router
-	server := router.NewRouter(authorHandler, bookHandler, authHandler, cfg)
+	server := router.NewRouter(
+		authorHandler,
+		bookHandler,
+		authHandler,
+		genreHandler,
+		cfg,
+	)
 
 	// 5. Swagger route
 	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
