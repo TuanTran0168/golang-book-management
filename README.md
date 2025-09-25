@@ -32,7 +32,8 @@ Here you’ll find full API documentation, try out endpoints, check request/resp
 │   │   ├── 📁 handlers/                   # Controllers: handle requests → call services
 │   │   │   ├── 🔵 auth_handler.go
 │   │   │   ├── 🔵 author_handler.go
-│   │   │   └── 🔵 book_handler.go
+│   │   │   ├── 🔵 book_handler.go
+│   │   │   └── 🔵 genre_handler.go
 │   │   ├── 📁 middlewares/                # Middleware (auth, logging, CORS, etc.)
 │   │   │   ├── 🔵 auth_middleware.go
 │   │   │   ├── 🔵 cors_middleware.go
@@ -40,19 +41,23 @@ Here you’ll find full API documentation, try out endpoints, check request/resp
 │   │   ├── 📁 models/                     # Entities / structs mapping to DB
 │   │   │   ├── 🔵 author.go
 │   │   │   ├── 🔵 book.go
+│   │   │   ├── 🔵 genre.go
 │   │   │   └── 🔵 user.go
 │   │   ├── 📁 repositories/               # Repository layer: DB queries
 │   │   │   ├── 🔵 author_repository.go
 │   │   │   ├── 🔵 book_repository.go
+│   │   │   ├── 🔵 genre_repository.go
 │   │   │   └── 🔵 user_repository.go
 │   │   ├── 📁 routers/                    # HTTP route definitions
 │   │   │   ├── 🔵 auth_routes.go
 │   │   │   ├── 🔵 author_routes.go
 │   │   │   ├── 🔵 book_routes.go
+│   │   │   ├── 🔵 genre_routes.go
 │   │   │   └── 🔵 router.go
 │   │   ├── 📁 services/                   # Service layer: business logic
 │   │   │   ├── 🔵 author_service.go
 │   │   │   ├── 🔵 book_service.go
+│   │   │   ├── 🔵 genre_service.go
 │   │   │   └── 🔵 user_service.go
 │   │   └── 📁 wire/                       # Dependency injection (Google Wire / manual DI)
 │   ├── 📁 notes/                          # Development notes (internal docs)
