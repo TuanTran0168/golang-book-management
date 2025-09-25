@@ -21,26 +21,42 @@ type AuthorResponseForBook struct {
 	Name string `json:"name"`
 }
 
+type GenreResponseForBook struct {
+	ID   uint   `json:"id"`
+	Name string `json:"name"`
+}
+
 type BookResponse struct {
-	ID        uint                  `json:"id"`
-	Title     string                `json:"title"`
-	Author    AuthorResponseForBook `json:"author"`
-	Image     string                `json:"image"`
-	CreatedAt string                `json:"created_at"`
-	UpdatedAt string                `json:"updated_at"`
+	ID        uint                   `json:"id"`
+	Title     string                 `json:"title"`
+	Author    AuthorResponseForBook  `json:"author"`
+	Genres    []GenreResponseForBook `json:"genres"`
+	Image     string                 `json:"image"`
+	CreatedAt string                 `json:"created_at"`
+	UpdatedAt string                 `json:"updated_at"`
 }
 
 func mapBookResponse(book *models.Book) BookResponse {
-
-	AuthorResponseForBook := AuthorResponseForBook{
+	// map author
+	authorResp := AuthorResponseForBook{
 		ID:   book.Author.ID,
 		Name: book.Author.Name,
+	}
+
+	// map genres
+	genresResp := make([]GenreResponseForBook, len(book.Genres))
+	for i, g := range book.Genres {
+		genresResp[i] = GenreResponseForBook{
+			ID:   g.ID,
+			Name: g.Name,
+		}
 	}
 
 	return BookResponse{
 		ID:        book.ID,
 		Title:     book.Title,
-		Author:    AuthorResponseForBook,
+		Author:    authorResp,
+		Genres:    genresResp,
 		Image:     book.Image,
 		CreatedAt: book.CreatedAt.Format("02-01-2006 15:04:05"),
 		UpdatedAt: book.UpdatedAt.Format("02-01-2006 15:04:05"),

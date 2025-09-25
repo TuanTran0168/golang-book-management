@@ -30,6 +30,27 @@ definitions:
       title:
         type: string
     type: object
+  book-management_internal_services.GenreCreateRequest:
+    properties:
+      name:
+        type: string
+    required:
+    - name
+    type: object
+  book-management_internal_services.GenreUpdateRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  book-management_internal_services.ManageBooksRequest:
+    properties:
+      book_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - book_ids
+    type: object
   gorm.DeletedAt:
     properties:
       time:
@@ -68,6 +89,10 @@ definitions:
         $ref: '#/definitions/internal_handlers.AuthorResponseForBook'
       created_at:
         type: string
+      genres:
+        items:
+          $ref: '#/definitions/internal_handlers.GenreResponseForBook'
+        type: array
       id:
         type: integer
       image:
@@ -75,6 +100,13 @@ definitions:
       title:
         type: string
       updated_at:
+        type: string
+    type: object
+  internal_handlers.BookResponseForGenre:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
     type: object
   internal_handlers.BookSimple:
@@ -93,6 +125,28 @@ definitions:
     required:
     - email
     - name
+    type: object
+  internal_handlers.GenreResponse:
+    properties:
+      books:
+        items:
+          $ref: '#/definitions/internal_handlers.BookResponseForGenre'
+        type: array
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  internal_handlers.GenreResponseForBook:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
     type: object
   internal_handlers.LoginRequest:
     properties:
@@ -627,6 +681,331 @@ paths:
       summary: Update a book partially
       tags:
       - books
+  /genres:
+    get:
+      description: Retrieve a paginated list of genres
+      parameters:
+      - default: "10"
+        description: Limit number of genres per page
+        in: query
+        name: limit
+        type: string
+      - default: "0"
+        description: Number of genres to skip
+        in: query
+        name: offset
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get all genres with pagination
+      tags:
+      - genres
+    post:
+      consumes:
+      - application/json
+      description: Create a new genre with a name
+      parameters:
+      - description: Genre data
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/book-management_internal_services.GenreCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_handlers.GenreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new genre
+      tags:
+      - genres
+  /genres/{id}:
+    delete:
+      description: Delete a genre by its ID
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a genre
+      tags:
+      - genres
+    get:
+      description: Get a single genre by genre ID
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handlers.GenreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get genre details by ID
+      tags:
+      - genres
+    patch:
+      consumes:
+      - application/json
+      description: Update genre fields partially by ID (PATCH)
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Genre fields to update
+        in: body
+        name: genre
+        required: true
+        schema:
+          $ref: '#/definitions/book-management_internal_services.GenreUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_handlers.GenreResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update a genre partially
+      tags:
+      - genres
+  /genres/{id}/books:
+    delete:
+      consumes:
+      - application/json
+      description: Detach multiple books from a genre by providing their IDs
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: List of book IDs
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/book-management_internal_services.ManageBooksRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Remove books from a genre
+      tags:
+      - genres
+    post:
+      consumes:
+      - application/json
+      description: Assign multiple books to a genre by providing their IDs
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: List of book IDs
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/book-management_internal_services.ManageBooksRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Add books to a genre
+      tags:
+      - genres
+    put:
+      consumes:
+      - application/json
+      description: Replace the current list of books with a new set
+      parameters:
+      - description: Genre ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: List of book IDs
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/book-management_internal_services.ManageBooksRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Replace books in a genre
+      tags:
+      - genres
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer {your token}" to authenticate.
